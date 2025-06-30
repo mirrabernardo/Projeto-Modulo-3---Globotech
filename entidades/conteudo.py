@@ -1,15 +1,21 @@
 class Conteudo:
     """
     Representa um conteúdo (video, podcast ou artigo) e suas interações.
+
     Métricas disponíveis:
-        - tempo_total_consumo: soma de durações de visualizações (view_start)
+        - tempo_total_consumo: soma de durações de visualizações ('view_start')
         - total_interacoes: contagem de todas as interações
         - total_engajamento: soma de likes, shares e comments
         - contagens_por_tipo: dicionário com quantidade por tipo de interação
+        - media de tempo de consumo: tempo_total_consumo / número de visualizações
+        - comentários registrados
+
     Complexidades:
         registrar_interacao: O(1)
         calcular_total_interacoes_engajamento: O(n)
         calcular_contagem_por_tipo_interacao: O(n)
+        calcular_media_tempo_consumo: O(n)
+        listar_comentarios: O(n)
     """
     def __init__(self, id_conteudo: int, nome: str = None):
         self.id = id_conteudo
@@ -23,7 +29,6 @@ class Conteudo:
         self._interacoes.append(interacao)
         self.total_interacoes += 1
         if interacao.tipo == "view_start":
-            # acumula duração apenas para visualizações
             self.tempo_total_consumo += interacao.duracao
 
     def calcular_total_interacoes_engajamento(self) -> int:
@@ -37,23 +42,29 @@ class Conteudo:
             contagens[i.tipo] = contagens.get(i.tipo, 0) + 1
         return contagens
 
+    def calcular_media_tempo_consumo(self) -> float:
+        """Retorna o tempo médio de consumo (view_start) em segundos."""
+        qtd_views = sum(1 for i in self._interacoes if i.tipo == "view_start")
+        return (self.tempo_total_consumo / qtd_views) if qtd_views > 0 else 0.0
+
+    def listar_comentarios(self) -> list:
+        """Retorna uma lista de todos os textos de comentários."""
+        return [i.comentario for i in self._interacoes if i.tipo == "comment" and i.comentario]
+
     def __repr__(self):
         return f"<Conteudo id={self.id} nome='{self.nome}'>"
 
 
 class Video(Conteudo):
     """Conteúdo do tipo Vídeo."""
-    def __init__(self, id_conteudo: int, nome: str = None):
-        super().__init__(id_conteudo, nome)
+    pass
 
 
 class Podcast(Conteudo):
     """Conteúdo do tipo Podcast."""
-    def __init__(self, id_conteudo: int, nome: str = None):
-        super().__init__(id_conteudo, nome)
+    pass
 
 
 class Artigo(Conteudo):
     """Conteúdo do tipo Artigo."""
-    def __init__(self, id_conteudo: int, nome: str = None):
-        super().__init__(id_conteudo, nome)
+    pass

@@ -51,7 +51,27 @@ projeto_engajamento_fase_3/
 ├── main.py                    # Script de execução e exibição de relatórios
 └── README.md                  # Documentação do projeto
 ```
+## Exemplo de Saída
 
+```text
+=== MENU PRINCIPAL ===
+1 – Métricas de Conteúdos
+2 – Informações de Usuários
+3 – Informações de Conteúdos
+4 – Informações de Plataformas
+5 – Listar Podcasts
+0 – Sair
+Escolha uma opção: 1
+
+=== MENU DE MÉTRICAS ===
+1 – Total de interações por conteúdo
+2 – Contagem por tipo de interação
+3 – Tempo total de visualização
+4 – Tempo médio de visualização
+5 – Listar comentários
+6 – Top-5 conteúdos mais visualizados
+```
+---
 ### Autores
 - André Carioca
 - Diego Teixeira
