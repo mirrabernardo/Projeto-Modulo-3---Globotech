@@ -19,18 +19,18 @@ class Plataforma:
         self.total_interacoes = 0
 
     def registrar_interacao(self, interacao):
-        """Adiciona uma interação à plataforma e atualiza métricas."""
+        # Adiciona uma interação à plataforma e atualiza métricas.
         self._interacoes.append(interacao)
         self.total_interacoes += 1
         if interacao.tipo == 'view_start':
             self.tempo_total_consumo += interacao.duracao
 
     def calcular_total_interacoes_engajamento(self) -> int:
-        """Retorna a soma de likes, shares e comments."""
+        # Retorna a soma de likes, shares e comments.
         return sum(1 for i in self._interacoes if i.tipo in {'like', 'share', 'comment'})
 
     def calcular_contagem_por_tipo_interacao(self) -> dict:
-        """Retorna um dicionário {tipo: contagem} para todos os tipos de interação."""
+        # Retorna um dicionário {tipo: contagem} para todos os tipos de interação. 
         contagens = {}
         for i in self._interacoes:
             contagens[i.tipo] = contagens.get(i.tipo, 0) + 1

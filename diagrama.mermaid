@@ -1,0 +1,68 @@
+classDiagram
+    SistemaAnaliseEngajamento --> Fila : usa
+    SistemaAnaliseEngajamento --> ArvoreBinariaBusca : gerencia
+    SistemaAnaliseEngajamento --> Plataforma : registra
+    SistemaAnaliseEngajamento --> Conteudo : registra
+    SistemaAnaliseEngajamento --> Usuario : registra
+
+    class Fila {
+      +enfileirar(item)
+      +desenfileirar()
+      +esta_vazia()
+    }
+
+    class ArvoreBinariaBusca {
+      +inserir(key, value)
+      +buscar(key)
+      +remover(key)
+      +percurso_em_ordem()
+      +imprimir()
+    }
+
+    class Plataforma {
+      -nome: str
+      -_interacoes: list
+      -tempo_total_consumo: float
+      -total_interacoes: int
+      +registrar_interacao(interacao)
+      +calcular_total_interacoes_engajamento()
+      +calcular_contagem_por_tipo_interacao()
+    }
+
+    class Conteudo {
+      -id: int
+      -nome: str
+      -_interacoes: list
+      -tempo_total_consumo: float
+      -total_interacoes: int
+      +registrar_interacao(interacao)
+      +calcular_total_interacoes_engajamento()
+      +calcular_contagem_por_tipo_interacao()
+      +calcular_media_tempo_consumo()
+      +listar_comentarios()
+    }
+
+    Conteudo <|-- Video
+    Conteudo <|-- Podcast
+    Conteudo <|-- Artigo
+
+    class Usuario {
+      -id: int
+      -_interacoes: list
+      -tempo_total_consumo: float
+      -total_interacoes: int
+      +registrar_interacao(interacao)
+      +calcular_total_interacoes_engajamento()
+      +calcular_contagem_por_tipo_interacao()
+    }
+
+    class Interacao {
+      -tipo: str
+      -duracao: float
+      -comentario: str
+      +__repr__()
+    }
+
+    Interacao --> Usuario
+    Interacao --> Conteudo
+    Interacao --> Plataforma

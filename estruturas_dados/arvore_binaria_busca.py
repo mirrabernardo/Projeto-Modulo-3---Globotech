@@ -20,7 +20,7 @@ class ArvoreBinariaBusca:
         self._root = None
 
     def inserir(self, key: int, value):
-        """Insere ou atualiza o valor associado à chave."""
+        # Insere ou atualiza o valor associado à chave.
         self._root = self._insert(self._root, key, value)
 
     def _insert(self, node, key, value):
@@ -36,7 +36,7 @@ class ArvoreBinariaBusca:
         return node
 
     def buscar(self, key: int):
-        """Retorna o valor associado à chave, ou None se não existir."""
+        # Retorna o valor associado à chave, ou None se não existir.
         node = self._root
         while node:
             if key < node.key:
@@ -48,7 +48,7 @@ class ArvoreBinariaBusca:
         return None
 
     def remover(self, key: int):
-        """Remove o nó com a chave especificada."""
+        # Remove o nó com a chave especificada.
         self._root = self._remove(self._root, key)
 
     def _remove(self, node, key):
@@ -72,14 +72,14 @@ class ArvoreBinariaBusca:
         return node
 
     def _min_node(self, node):
-        """Retorna o nó de menor chave na subárvore."""
+        # Retorna o nó de menor chave na subárvore.
         current = node
         while current.left:
             current = current.left
         return current
 
     def percurso_em_ordem(self):
-        """Retorna lista de (chave, valor) em ordem crescente de chaves."""
+        # Retorna lista de (chave, valor) em ordem crescente de chaves.
         result = []
         self._inorder(self._root, result)
         return result
@@ -90,11 +90,3 @@ class ArvoreBinariaBusca:
             result.append((node.key, node.value))
             self._inorder(node.right, result)
 
-# Exemplo de uso:
-# bst = ArvoreBinariaBusca()
-# bst.inserir(5, 'cinco')
-# bst.inserir(3, 'três')
-# bst.inserir(7, 'sete')
-# print(bst.buscar(3))  # 'três'
-# bst.remover(5)
-# print(bst.percurso_em_ordem())  # [(3, 'três'), (7, 'sete')]

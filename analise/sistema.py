@@ -2,7 +2,7 @@ import csv
 from estruturas_dados.fila import Fila
 from estruturas_dados.arvore_binaria_busca import ArvoreBinariaBusca
 from entidades.plataforma import Plataforma
-from entidades.conteudo import Conteudo
+from entidades.conteudo import Conteudo, Video, Podcast, Artigo
 from entidades.usuario import Usuario
 from entidades.interacao import Interacao
 
@@ -10,10 +10,10 @@ class SistemaAnaliseEngajamento:
     """
     Orquestra o fluxo de processamento de interações usando Fila e BSTs.
 
-    Operações:
+    Principais operações:
       - carregar_interacoes_csv: O(n)
       - processar_interacoes_da_fila: O(n log m)
-      - geração de relatórios: O(k log k)
+      - relatórios diversos: O(k log k)
     """
     def __init__(self):
         self._fila_interacoes_brutas = Fila()
@@ -32,83 +32,104 @@ class SistemaAnaliseEngajamento:
         """Processa cada item da fila, instanciando entidades e registrando interações."""
         while not self._fila_interacoes_brutas.esta_vazia():
             dados = self._fila_interacoes_brutas.desenfileirar()
-            raw_content = dados.get('id_conteudo')
-            raw_user = dados.get('id_usuario')
-            if not raw_content or not raw_user:
+            raw_c = dados.get('id_conteudo')
+            raw_u = dados.get('id_usuario')
+            if not raw_c or not raw_u:
                 continue
             try:
-                id_conteudo = int(raw_content)
-                id_usuario = int(raw_user)
+                id_conteudo = int(raw_c)
+                id_usuario = int(raw_u)
             except ValueError:
                 continue
-            nome_conteudo = dados.get('nome_conteudo') or f"conteudo_{id_conteudo}"
-
+            nome_c = dados.get('nome_conteudo') or f"conteudo_{id_conteudo}"
             # Plataforma
-            nome_plataforma = dados.get('plataforma')
-            if not nome_plataforma:
+            nome_plat = dados.get('plataforma')
+            if not nome_plat:
                 continue
-            plataforma = self._plataformas_registradas.get(nome_plataforma)
-            if plataforma is None:
-                plataforma = Plataforma(nome_plataforma)
-                self._plataformas_registradas[nome_plataforma] = plataforma
-
-            # Conteúdo (genérico)
+            plat = self._plataformas_registradas.get(nome_plat)
+            if plat is None:
+                plat = Plataforma(nome_plat)
+                self._plataformas_registradas[nome_plat] = plat
+            # Conteúdo
             conteudo = self._arvore_conteudos.buscar(id_conteudo)
             if conteudo is None:
-                conteudo = Conteudo(id_conteudo, nome_conteudo)
+                conteudo = Conteudo(id_conteudo, nome_c)
                 self._arvore_conteudos.inserir(id_conteudo, conteudo)
-
             # Usuário
             usuario = self._arvore_usuarios.buscar(id_usuario)
             if usuario is None:
                 usuario = Usuario(id_usuario)
                 self._arvore_usuarios.inserir(id_usuario, usuario)
-
             # Interação
             tipo_int = dados.get('tipo_interacao')
-            comentario = dados.get('comment_text')
             try:
-                duracao = float(dados.get('watch_duration_seconds') or 0)
+                dur = float(dados.get('watch_duration_seconds') or 0)
             except ValueError:
-                duracao = 0.0
-
-            inter = Interacao(usuario, conteudo, plataforma, tipo_int, duracao, comentario)
-
+                dur = 0.0
+            comentario = dados.get('comment_text')
+            inter = Interacao(usuario, conteudo, plat, tipo_int, dur, comentario)
             # Registro
             conteudo.registrar_interacao(inter)
             usuario.registrar_interacao(inter)
-            plataforma.registrar_interacao(inter)
+            plat.registrar_interacao(inter)
 
-    def gerar_top_conteudos_por_tempo(self, n: int = None):
-        """Retorna top N conteúdos ordenados por tempo_total_consumo desc."""
+    # Relatórios conforme solicitação
+    def gerar_top_conteudos_por_tempo(self, n=None):
         pares = self._arvore_conteudos.percurso_em_ordem()
-        conteudos = [v for _, v in pares]
-        ordenados = sorted(conteudos, key=lambda c: c.tempo_total_consumo, reverse=True)
-        return ordenados[:n] if n else ordenados
+        lista = [v for _, v in pares]
+        orden = sorted(lista, key=lambda c: c.tempo_total_consumo, reverse=True)
+        return orden[:n] if n else orden
 
-    def gerar_top_usuarios_por_interacoes(self, n: int = None):
-        """Retorna top N usuários ordenados por total_interacoes desc."""
+    def gerar_top_usuarios_por_interacoes(self, n=None):
         pares = self._arvore_usuarios.percurso_em_ordem()
-        usuarios = [v for _, v in pares]
-        ordenados = sorted(usuarios, key=lambda u: u.total_interacoes, reverse=True)
-        return ordenados[:n] if n else ordenados
+        lista = [v for _, v in pares]
+        orden = sorted(lista, key=lambda u: u.total_interacoes, reverse=True)
+        return orden[:n] if n else orden
 
-    def gerar_tempo_total_por_plataforma(self, n: int = None):
-        """Retorna top N plataformas ordenadas por tempo_total_consumo desc."""
-        plataformas = list(self._plataformas_registradas.values())
-        ordenados = sorted(plataformas, key=lambda p: p.tempo_total_consumo, reverse=True)
-        return ordenados[:n] if n else ordenados
+    def gerar_ranking_usuarios_por_tempo(self, n=None):
+        pares = self._arvore_usuarios.percurso_em_ordem()
+        lista = [v for _, v in pares]
+        orden = sorted(lista, key=lambda u: u.tempo_total_consumo, reverse=True)
+        return orden[:n] if n else orden
+
+    def gerar_ranking_plataformas_por_engajamento(self, n=None):
+        lista = list(self._plataformas_registradas.values())
+        orden = sorted(lista, key=lambda p: p.calcular_total_interacoes_engajamento(), reverse=True)
+        return orden[:n] if n else orden
+
+    def gerar_ranking_conteudos_por_comentarios(self, n=None):
+        pares = self._arvore_conteudos.percurso_em_ordem()
+        lista = [v for _, v in pares]
+        orden = sorted(lista, key=lambda c: c.calcular_contagem_por_tipo_interacao().get('comment', 0), reverse=True)
+        return orden[:n] if n else orden
+
+    def gerar_conteudos_por_total_interacoes(self, n=None):
+        pares = self._arvore_conteudos.percurso_em_ordem()
+        lista = [v for _, v in pares]
+        orden = sorted(lista, key=lambda c: c.total_interacoes, reverse=True)
+        return orden[:n] if n else orden
+
+    def calcular_tempo_medio_consumo_por_plataforma(self):
+        medias = {}
+        for p in self._plataformas_registradas.values():
+            contagem = p.calcular_contagem_por_tipo_interacao()
+            qtd_views = contagem.get('view_start', 0)
+            medias[p.nome] = (p.tempo_total_consumo / qtd_views) if qtd_views else 0.0
+        return medias
+
+    def contar_comentarios_por_conteudo(self):
+        pares = self._arvore_conteudos.percurso_em_ordem()
+        return {v.nome: v.calcular_contagem_por_tipo_interacao().get('comment', 0) for _, v in pares}
 
     def obter_fila_interacoes(self):
         return self._fila_interacoes_brutas
 
     def limpar_fila_interacoes(self):
-        """Esvazia a fila de interações."""
         while not self._fila_interacoes_brutas.esta_vazia():
             self._fila_interacoes_brutas.desenfileirar()
 
-    def esta_fila_vazia(self) -> bool:
+    def esta_fila_vazia(self):
         return self._fila_interacoes_brutas.esta_vazia()
 
-    def tamanho_fila(self) -> int:
+    def tamanho_fila(self):
         return len(self._fila_interacoes_brutas)
